@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Booster — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #4285F4; --red: #EA4335; --yellow: #FBBC05; --green: #34A853;
+  --surface: #fff; --surface-2: #f8f9fa; --surface-3: #f1f3f4;
+  --border: #dadce0; --text: #202124; --text-2: #5f6368; --text-3: #80868b;
+  --shadow-sm: 0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+  --shadow-md: 0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);
+  --shadow-lg: 0 2px 6px rgba(60,64,67,.3),0 6px 20px 4px rgba(60,64,67,.15);
+  --r: 8px; --r-lg: 16px; --r-full: 9999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Roboto',sans-serif;background:var(--surface-2);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-card{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);padding:40px;width:100%;max-width:400px;text-align:center}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px}
+.logo-dots{display:flex;gap:4px}
+.logo-dot{width:12px;height:12px;border-radius:50%}
+.login-logo span{font-family:'Google Sans',sans-serif;font-size:22px;font-weight:500}
+.login-card h2{font-family:'Google Sans',sans-serif;font-size:20px;font-weight:400;margin-bottom:6px}
+.login-card p{font-size:14px;color:var(--text-2);margin-bottom:28px}
+.form-group{margin-bottom:16px;text-align:left}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--text-2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.form-input,.form-select{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:'Roboto',sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s}
+.form-input:focus,.form-select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(66,133,244,.2)}
+.form-hint{font-size:12px;color:var(--text-3);margin-top:4px}
+.login-error{background:#fce8e6;color:var(--red);border-radius:var(--r);padding:10px 14px;font-size:13px;margin-bottom:16px;display:none}
+.login-error.show{display:block}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--r-full);font-family:'Google Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1a73e8;box-shadow:var(--shadow-sm)}
+.btn-outline{background:transparent;color:var(--blue);border:1px solid var(--border)}.btn-outline:hover{background:#e8f0fe}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--border)}.btn-danger:hover{background:#fce8e6}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-full{width:100%;justify-content:center}
+.btn-icon{padding:8px;border-radius:50%;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .2s}.btn-icon:hover{background:var(--surface-3)}
+
+/* ── MAIN APP ── */
+#app{display:none}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Google Sans',sans-serif;font-size:20px;font-weight:500;color:var(--text)}
+.header-right{display:flex;align-items:center;gap:10px}
+.logout-btn{font-size:13px;color:var(--text-2);background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:var(--r);transition:background .2s}.logout-btn:hover{background:var(--surface-3)}
+
+.main{max-width:1000px;margin:0 auto;padding:32px 24px}
+.page-title{font-family:'Google Sans',sans-serif;font-size:24px;font-weight:400;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text-2);margin-bottom:28px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 24px}
+.stat-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.stat-val{font-family:'Google Sans',sans-serif;font-size:34px;font-weight:400}
+.stat-val.blue{color:var(--blue)}.stat-val.green{color:var(--green)}.stat-val.yellow{color:var(--yellow)}
+
+/* Section */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500}
+
+/* Client grid */
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.empty-state{text-align:center;padding:60px 24px;color:var(--text-2);grid-column:1/-1}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-family:'Google Sans',sans-serif;font-size:16px;color:var(--text);margin-bottom:6px}
+
+.client-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:box-shadow .2s}.client-card:hover{box-shadow:var(--shadow-sm)}
+.client-card-top{padding:18px 18px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border)}
+.client-logo-wrap{position:relative;flex-shrink:0}
+.client-logo{width:52px;height:52px;border-radius:50%;object-fit:cover;display:block}
+.client-logo-placeholder{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Google Sans',sans-serif;font-size:20px;font-weight:700;color:#fff;flex-shrink:0}
+.logo-upload-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;cursor:pointer;font-size:14px;color:#fff}
+.client-logo-wrap:hover .logo-upload-overlay{opacity:1}
+.client-info{flex:1;min-width:0}
+.client-name{font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-type-badge{font-size:11px;color:var(--text-2);background:var(--surface-3);padding:2px 8px;border-radius:var(--r-full);display:inline-block}
+.kw-chips{display:flex;flex-wrap:wrap;gap:4px;padding:10px 18px;border-bottom:1px solid var(--border);min-height:36px}
+.kw-chip{font-size:11px;color:var(--blue);background:#e8f0fe;padding:2px 8px;border-radius:var(--r-full)}
+.kw-empty{font-size:11px;color:var(--text-3);align-self:center}
+.client-link-row{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.client-link-text{font-size:11px;font-family:monospace;color:var(--text-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.client-actions{padding:12px 18px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r-lg);width:100%;max-width:500px;box-shadow:var(--shadow-lg);overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:'Google Sans',sans-serif;font-size:18px;font-weight:500}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 24px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);flex-shrink:0}
+
+/* Logo upload in modal */
+.logo-upload-area{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.logo-preview-circle{width:68px;height:68px;border-radius:50%;overflow:hidden;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Google Sans',sans-serif;font-size:24px;font-weight:700;color:#fff;position:relative;cursor:pointer}
+.logo-preview-circle img{width:100%;height:100%;object-fit:cover;display:block}
+.logo-upload-info{flex:1}
+.logo-upload-info p{font-size:13px;color:var(--text-2);margin-bottom:8px}
+.hidden-file{display:none}
+
+/* Keywords */
+.keywords-wrap{display:flex;flex-wrap:wrap;gap:6px;border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;min-height:44px;cursor:text;transition:border-color .2s,box-shadow .2s}
+.keywords-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 2px rgba(66,133,244,.2)}
+.kw-tag{display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:var(--blue);border-radius:var(--r-full);padding:3px 10px;font-size:13px;font-weight:500}
+.kw-tag button{background:none;border:none;cursor:pointer;color:var(--blue);font-size:15px;line-height:1;padding:0;margin-left:2px;opacity:.7}.kw-tag button:hover{opacity:1}
+.kw-input{border:none;outline:none;font-family:'Roboto',sans-serif;font-size:14px;color:var(--text);flex:1;min-width:80px;padding:2px 0;background:transparent}
+.kw-count{font-size:11px;color:var(--text-3);margin-top:4px}
+.kw-add-row{display:flex;gap:8px;align-items:flex-start}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#323232;color:#fff;padding:12px 20px;border-radius:var(--r-full);font-size:14px;z-index:300;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Responsive */
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr}
+  .main{padding:20px 14px}
+  .app-header{padding:0 14px}
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:85vh}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-dots">
+        <div class="logo-dot" style="background:var(--blue)"></div>
+        <div class="logo-dot" style="background:var(--red)"></div>
+        <div class="logo-dot" style="background:var(--yellow)"></div>
+        <div class="logo-dot" style="background:var(--green)"></div>
+      </div>
+      <span>Review Booster</span>
+    </div>
+    <h2>Admin Login</h2>
+    <p>Enter your password to manage clients</p>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="login-pass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-dots">
+        <div class="logo-dot" style="background:var(--blue)"></div>
+        <div class="logo-dot" style="background:var(--red)"></div>
+        <div class="logo-dot" style="background:var(--yellow)"></div>
+        <div class="logo-dot" style="background:var(--green)"></div>
+      </div>
+      Review Booster Admin
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary btn-sm" onclick="openModal()">+ Add Client</button>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="page-title">Client Dashboard</div>
+    <div class="page-sub">Manage clients and share their review links</div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Total Clients</div><div class="stat-val blue" id="stat-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">Active Links</div><div class="stat-val green" id="stat-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">Business Types</div><div class="stat-val yellow" id="stat-types">0</div></div>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Your Clients</div>
+    </div>
+    <div class="clients-grid" id="clients-grid"></div>
+  </div>
+</div>
+
+<!-- ── ADD / EDIT MODAL ── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add New Client</div>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Logo -->
+      <div class="form-group">
+        <label class="form-label">Business Logo</label>
+        <div class="logo-upload-area">
+          <div class="logo-preview-circle" id="logo-preview-circle" onclick="document.getElementById('logo-file').click()">
+            <span id="logo-preview-initial">?</span>
+          </div>
+          <div class="logo-upload-info">
+            <p>Click the circle to upload a logo. If no logo, we'll show a Google-style colored avatar.</p>
+            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('logo-file').click()">📁 Upload Logo</button>
+            <button type="button" class="btn btn-sm" id="remove-logo-btn" style="color:var(--red);border:1px solid var(--border);border-radius:var(--r-full);background:transparent;padding:6px 14px;font-family:'Google Sans',sans-serif;font-size:13px;cursor:pointer;display:none" onclick="removeLogo()">✕ Remove</button>
+          </div>
+        </div>
+        <input type="file" id="logo-file" class="hidden-file" accept="image/*" onchange="handleLogoUpload(event)" />
+      </div>
+
+      <!-- Name -->
+      <div class="form-group">
+        <label class="form-label">Business Name</label>
+        <input class="form-input" id="input-name" placeholder="e.g. Sharma Dental Clinic" oninput="updateLogoPreview()" />
+      </div>
+
+      <!-- Type -->
+      <div class="form-group">
+        <label class="form-label">Business Type</label>
+        <select class="form-select" id="input-type">
+          <option value="">Select a type...</option>
+          <option>Restaurant / Cafe</option>
+          <option>Dental Clinic</option>
+          <option>Medical Clinic</option>
+          <option>Salon / Spa</option>
+          <option>Retail Shop</option>
+          <option>Gym / Fitness</option>
+          <option>Hotel / Hospitality</option>
+          <option>Auto Service / Garage</option>
+          <option>Law Firm</option>
+          <option>Real Estate Agency</option>
+          <option>Education / Tutoring</option>
+          <option>Pharmacy</option>
+          <option>Bakery / Sweet Shop</option>
+          <option>Photography Studio</option>
+          <option>Event Management</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <!-- Review link -->
+      <div class="form-group">
+        <label class="form-label">Google Review Link</label>
+        <input class="form-input" id="input-link" placeholder="https://g.page/r/..." />
+        <div class="form-hint">The direct Google review URL for this business</div>
+      </div>
+
+      <!-- Keywords -->
+      <div class="form-group">
+        <label class="form-label">Keywords <span style="color:var(--text-3);font-weight:400;text-transform:none;letter-spacing:0">(optional, up to 10)</span></label>
+        <div class="kw-add-row">
+          <div style="flex:1">
+            <div class="keywords-wrap" id="keywords-wrap" onclick="document.getElementById('kw-input').focus()">
+              <input class="kw-input" id="kw-input" placeholder="Type keyword & press Enter..." maxlength="40" />
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addKwFromInput()" style="margin-top:2px;flex-shrink:0">+ Add</button>
+        </div>
+        <div class="kw-count" id="kw-count">0 / 10</div>
+        <div class="form-hint">e.g. "painless treatment", "best biryani" — AI weaves 1–2 into reviews naturally</div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const PASSWORD = 'reviewbooster2024'; // 🔒 Change this!
+const REVIEW_PAGE = 'review.html';    // path to review.html on your server
+
+// ── AUTH ────────────────────────────────────────────────────────────────────
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  if (pass === PASSWORD) {
+    sessionStorage.setItem('rb_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderClients();
+  } else {
+    document.getElementById('login-error').classList.add('show');
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem('rb_auth');
+  location.reload();
+}
+if (sessionStorage.getItem('rb_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+let clients = JSON.parse(localStorage.getItem('rb_clients') || '[]');
+let editingId = null;
+let currentKeywords = [];
+let currentLogoDataUrl = null;
+
+const COLORS = ['#4285F4','#EA4335','#FBBC05','#34A853','#9C27B0','#FF5722','#009688','#3F51B5'];
+
+function saveData() { localStorage.setItem('rb_clients', JSON.stringify(clients)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
+function getColor(name) {
+  let h = 0;
+  for (let c of name) h = (h << 5) - h + c.charCodeAt(0);
+  return COLORS[Math.abs(h) % COLORS.length];
+}
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── COPY ────────────────────────────────────────────────────────────────────
+function forceCopy(text) {
+  return new Promise(resolve => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(resolve).catch(() => fbCopy(text, resolve));
+    } else fbCopy(text, resolve);
+  });
+}
+function fbCopy(text, resolve) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta); resolve();
+}
+
+// ── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── RENDER CLIENTS ──────────────────────────────────────────────────────────
+function renderClients() {
+  const grid = document.getElementById('clients-grid');
+  const total = clients.length;
+  const types = new Set(clients.map(c => c.type)).size;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-active').textContent = total;
+  document.getElementById('stat-types').textContent = types;
+
+  if (!total) {
+    grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🏪</div><div class="empty-title">No clients yet</div><p>Click <strong>+ Add Client</strong> to get started</p></div>';
+    return;
+  }
+
+  grid.innerHTML = clients.map(c => {
+    const reviewUrl = location.origin + location.pathname.replace('admin.html','') + REVIEW_PAGE + '?id=' + c.id;
+    const color = getColor(c.name);
+    const initial = c.name.charAt(0).toUpperCase();
+    const logoHtml = c.logo
+      ? '<img class="client-logo" src="' + c.logo + '" alt="logo" />'
+      : '<div class="client-logo-placeholder" style="background:' + color + '">' + initial + '</div>';
+    const kwHtml = (c.keywords||[]).length
+      ? (c.keywords||[]).map(k => '<span class="kw-chip">' + esc(k) + '</span>').join('')
+      : '<span class="kw-empty">No keywords</span>';
+    return '<div class="client-card">'
+      + '<div class="client-card-top">'
+      + '<div class="client-logo-wrap">' + logoHtml
+      + '<div class="logo-upload-overlay" onclick="quickLogoUpload(\'' + c.id + '\')">📷</div></div>'
+      + '<div class="client-info"><div class="client-name" title="' + esc(c.name) + '">' + esc(c.name) + '</div>'
+      + '<span class="client-type-badge">' + esc(c.type) + '</span></div></div>'
+      + '<div class="kw-chips">' + kwHtml + '</div>'
+      + '<div class="client-link-row"><span class="client-link-text" title="' + esc(reviewUrl) + '">' + esc(reviewUrl) + '</span>'
+      + '<button class="btn btn-outline btn-sm" onclick="copyReviewLink(\'' + c.id + '\')">Copy</button></div>'
+      + '<div class="client-actions">'
+      + '<button class="btn btn-outline btn-sm" onclick="openPreview(\'' + c.id + '\')">👁 Preview</button>'
+      + '<button class="btn btn-outline btn-sm" onclick="editClient(\'' + c.id + '\')">✏️ Edit</button>'
+      + '<button class="btn btn-danger btn-sm" onclick="deleteClient(\'' + c.id + '\')">🗑 Delete</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function copyReviewLink(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  const url = location.origin + location.pathname.replace('admin.html','') + REVIEW_PAGE + '?id=' + id;
+  forceCopy(url).then(() => showToast('🔗 Review link copied!'));
+}
+function openPreview(id) {
+  window.open(REVIEW_PAGE + '?id=' + id, '_blank');
+}
+function deleteClient(id) {
+  if (!confirm('Delete this client? This cannot be undone.')) return;
+  clients = clients.filter(c => c.id !== id);
+  saveData(); renderClients(); showToast('Client deleted');
+}
+
+// ── MODAL ───────────────────────────────────────────────────────────────────
+function openModal(id) {
+  editingId = id || null;
+  currentKeywords = [];
+  currentLogoDataUrl = null;
+
+  document.getElementById('modal-title').textContent = id ? 'Edit Client' : 'Add New Client';
+  document.getElementById('save-btn').textContent = id ? 'Save Changes' : 'Add Client';
+
+  if (id) {
+    const c = clients.find(x => x.id === id);
+    document.getElementById('input-name').value = c.name;
+    document.getElementById('input-type').value = c.type;
+    document.getElementById('input-link').value = c.reviewLink;
+    currentKeywords = [...(c.keywords||[])];
+    currentLogoDataUrl = c.logo || null;
+  } else {
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-type').value = '';
+    document.getElementById('input-link').value = '';
+  }
+
+  updateLogoPreview();
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => { renderKeywords(); initKwInput(); }, 50);
+}
+function editClient(id) { openModal(id); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function saveClient() {
+  const name = document.getElementById('input-name').value.trim();
+  const type = document.getElementById('input-type').value;
+  const reviewLink = document.getElementById('input-link').value.trim();
+  if (!name || !type || !reviewLink) { showToast('⚠️ Please fill all required fields'); return; }
+
+  if (editingId) {
+    const idx = clients.findIndex(c => c.id === editingId);
+    clients[idx] = { ...clients[idx], name, type, reviewLink, keywords: [...currentKeywords], logo: currentLogoDataUrl };
+  } else {
+    clients.push({ id: genId(), name, type, reviewLink, keywords: [...currentKeywords], logo: currentLogoDataUrl });
+  }
+  saveData(); closeModal(); renderClients();
+  showToast(editingId ? '✓ Client updated!' : '✓ Client added!');
+}
+
+// ── LOGO ─────────────────────────────────────────────────────────────────────
+function handleLogoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('⚠️ Image must be under 2MB'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentLogoDataUrl = e.target.result;
+    updateLogoPreview();
+  };
+  reader.readAsDataURL(file);
+}
+function removeLogo() {
+  currentLogoDataUrl = null;
+  document.getElementById('logo-file').value = '';
+  updateLogoPreview();
+}
+function updateLogoPreview() {
+  const circle = document.getElementById('logo-preview-circle');
+  const initial = document.getElementById('logo-preview-initial');
+  const removeBtn = document.getElementById('remove-logo-btn');
+  const name = document.getElementById('input-name').value.trim();
+  const color = name ? getColor(name) : '#4285F4';
+  const letter = name ? name.charAt(0).toUpperCase() : '?';
+
+  if (currentLogoDataUrl) {
+    circle.style.background = 'none';
+    initial.style.display = 'none';
+    let img = circle.querySelector('img');
+    if (!img) { img = document.createElement('img'); img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%'; circle.appendChild(img); }
+    img.src = currentLogoDataUrl;
+    removeBtn.style.display = 'inline-flex';
+  } else {
+    circle.style.background = color;
+    initial.style.display = '';
+    initial.textContent = letter;
+    const img = circle.querySelector('img');
+    if (img) img.remove();
+    removeBtn.style.display = 'none';
+  }
+}
+
+// Quick logo upload from card hover
+let quickUploadId = null;
+function quickLogoUpload(id) {
+  quickUploadId = id;
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file || file.size > 2*1024*1024) { showToast('⚠️ Image must be under 2MB'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const idx = clients.findIndex(c => c.id === quickUploadId);
+      if (idx >= 0) { clients[idx].logo = ev.target.result; saveData(); renderClients(); showToast('✓ Logo updated!'); }
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+// ── KEYWORDS ─────────────────────────────────────────────────────────────────
+function renderKeywords() {
+  const wrap = document.getElementById('keywords-wrap');
+  const inp = document.getElementById('kw-input');
+  if (!wrap) return;
+  wrap.querySelectorAll('.kw-tag').forEach(t => t.remove());
+  currentKeywords.forEach((kw, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'kw-tag';
+    tag.innerHTML = esc(kw) + '<button onclick="removeKw(' + i + ')">×</button>';
+    wrap.insertBefore(tag, inp);
+  });
+  document.getElementById('kw-count').textContent = currentKeywords.length + ' / 10';
+  inp.placeholder = currentKeywords.length >= 10 ? 'Max 10 reached' : 'Type keyword & press Enter...';
+  inp.disabled = currentKeywords.length >= 10;
+}
+function removeKw(i) { currentKeywords.splice(i,1); renderKeywords(); }
+function addKwFromInput() {
+  const inp = document.getElementById('kw-input');
+  if (!inp) return;
+  const kw = inp.value.trim().replace(/,+$/, '');
+  if (kw && currentKeywords.length < 10 && !currentKeywords.includes(kw)) {
+    currentKeywords.push(kw); inp.value = ''; renderKeywords();
+  }
+  inp.focus();
+}
+function initKwInput() {
+  const inp = document.getElementById('kw-input');
+  if (!inp || inp._init) return;
+  inp._init = true;
+  inp.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',') && inp.value.trim()) { e.preventDefault(); addKwFromInput(); }
+    else if (e.key === 'Backspace' && !inp.value && currentKeywords.length) { currentKeywords.pop(); renderKeywords(); }
+  });
+  inp.addEventListener('input', () => {
+    if (inp.value.endsWith(',')) { inp.value = inp.value.slice(0,-1); addKwFromInput(); }
+  });
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+if (sessionStorage.getItem('rb_auth') === '1') renderClients();
+</script>
+</body>
+</html>
